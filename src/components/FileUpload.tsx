@@ -679,8 +679,8 @@ const FileUpload = () => {
         </div>
         
         <CollapsibleContent>
-          {queueResults.length > 0 ? (
-            <ScrollArea className="h-[400px]">
+          <ScrollArea className="h-[400px]">
+            {queueResults.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -710,63 +710,63 @@ const FileUpload = () => {
                             aria-label={`Select queue row ${originalIndex + 1}`}
                           />
                         </TableCell>
-                      <TableCell className="font-medium">{result.companyName}</TableCell>
-                      <TableCell>
-                        {result.websiteUrl !== 'N/A' ? (
-                          <a 
-                            href={result.websiteUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline"
-                          >
-                            {result.websiteUrl}
-                          </a>
-                        ) : (
-                          'N/A'
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          result.scrappingStatus.toLowerCase().includes('done')
-                            ? 'bg-green-500 text-white font-semibold'
-                            : result.scrappingStatus.toLowerCase().includes('begin')
-                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                            : result.scrappingStatus.toLowerCase().includes('pending')
-                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                            : result.scrappingStatus.toLowerCase() === 'success' || result.scrappingStatus.toLowerCase() === 'completed'
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            : result.scrappingStatus.toLowerCase() === 'failed' || result.scrappingStatus.toLowerCase() === 'error'
-                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                        }`}>
-                          {result.scrappingStatus}
-                        </span>
-                      </TableCell>
-                      <TableCell className="max-w-xs truncate" title={result.scrappedData}>
-                        {result.scrappedData || 'N/A'}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {new Date(result.timestamp).toLocaleString()}
-                      </TableCell>
+                        <TableCell className="font-medium">{result.companyName}</TableCell>
+                        <TableCell>
+                          {result.websiteUrl !== 'N/A' ? (
+                            <a 
+                              href={result.websiteUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline"
+                            >
+                              {result.websiteUrl}
+                            </a>
+                          ) : (
+                            'N/A'
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            result.scrappingStatus.toLowerCase().includes('done')
+                              ? 'bg-green-500 text-white font-semibold'
+                              : result.scrappingStatus.toLowerCase().includes('begin')
+                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                              : result.scrappingStatus.toLowerCase().includes('pending')
+                              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                              : result.scrappingStatus.toLowerCase() === 'success' || result.scrappingStatus.toLowerCase() === 'completed'
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : result.scrappingStatus.toLowerCase() === 'failed' || result.scrappingStatus.toLowerCase() === 'error'
+                              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          }`}>
+                            {result.scrappingStatus}
+                          </span>
+                        </TableCell>
+                        <TableCell className="max-w-xs truncate" title={result.scrappedData}>
+                          {result.scrappedData || 'N/A'}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(result.timestamp).toLocaleString()}
+                        </TableCell>
                       </TableRow>
                     );
                   })}
                 </TableBody>
               </Table>
-            </ScrollArea>
-          ) : (
-            <div className="p-12 text-center">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                  <FileText className="w-8 h-8 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="font-medium text-foreground mb-1">No items in queue</p>
-                  <p className="text-sm text-muted-foreground">Upload files and add them to the queue to start scraping</p>
+            ) : (
+              <div className="p-12 text-center">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                    <FileText className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground mb-1">No items in queue</p>
+                    <p className="text-sm text-muted-foreground">Upload files and add them to the queue to start scraping</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </ScrollArea>
         </CollapsibleContent>
       </Collapsible>
     </div>
