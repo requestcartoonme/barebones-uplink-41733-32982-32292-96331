@@ -21,9 +21,9 @@ const AppSidebar = () => {
             variant="ghost" 
             size="icon"
             onClick={toggleSidebar}
-            className="h-8 w-8 flex-shrink-0"
+            className="h-10 w-10 flex-shrink-0 hover:bg-sidebar-accent"
           >
-            {open ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            {open ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
           </Button>
         </div>
         
@@ -32,7 +32,7 @@ const AppSidebar = () => {
             <SidebarMenu className="p-2 space-y-1">
               <SidebarMenuItem>
                 <SidebarMenuButton asChild className="bg-sidebar-accent text-sidebar-accent-foreground">
-                  <a href="/" className={`flex items-center gap-3 px-3 py-2.5 ${!open && 'justify-center'}`}>
+                  <a href="/" className={`flex items-center gap-3 px-3 py-3 ${!open && 'justify-center px-0'}`}>
                     <Home className="w-5 h-5 flex-shrink-0" />
                     {open && <span className="font-medium">Dashboard</span>}
                   </a>
@@ -40,7 +40,7 @@ const AppSidebar = () => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="#" className={`flex items-center gap-3 px-3 py-2.5 ${!open && 'justify-center'}`}>
+                  <a href="#" className={`flex items-center gap-3 px-3 py-3 ${!open && 'justify-center px-0'}`}>
                     <Upload className="w-5 h-5 flex-shrink-0" />
                     {open && <span className="font-medium">Upload</span>}
                   </a>
@@ -48,7 +48,7 @@ const AppSidebar = () => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="#" className={`flex items-center gap-3 px-3 py-2.5 ${!open && 'justify-center'}`}>
+                  <a href="#" className={`flex items-center gap-3 px-3 py-3 ${!open && 'justify-center px-0'}`}>
                     <FileText className="w-5 h-5 flex-shrink-0" />
                     {open && <span className="font-medium">Results</span>}
                   </a>
@@ -56,7 +56,7 @@ const AppSidebar = () => {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="#" className={`flex items-center gap-3 px-3 py-2.5 ${!open && 'justify-center'}`}>
+                  <a href="#" className={`flex items-center gap-3 px-3 py-3 ${!open && 'justify-center px-0'}`}>
                     <Settings className="w-5 h-5 flex-shrink-0" />
                     {open && <span className="font-medium">Settings</span>}
                   </a>
@@ -66,8 +66,8 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <div className="mt-auto p-2 border-t border-sidebar-border">
-          <div className={`px-3 py-2 rounded-lg bg-sidebar-accent/50 ${!open && 'flex justify-center'}`}>
+        <div className="mt-auto p-3 border-t border-sidebar-border">
+          <div className={`px-3 py-2.5 rounded-lg bg-sidebar-accent/50 ${!open && 'flex justify-center px-0'}`}>
             {open && <p className="text-xs text-sidebar-foreground/70 mb-1">Status</p>}
             <div className={`flex items-center gap-2 ${open ? '' : 'justify-center'}`}>
               <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>

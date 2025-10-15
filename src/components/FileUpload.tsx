@@ -30,8 +30,8 @@ const FileUpload = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [queueSearchQuery, setQueueSearchQuery] = useState("");
-  const [isUploadedDataOpen, setIsUploadedDataOpen] = useState(true);
-  const [isQueueOpen, setIsQueueOpen] = useState(true);
+  const [isUploadedDataOpen, setIsUploadedDataOpen] = useState(false);
+  const [isQueueOpen, setIsQueueOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -487,12 +487,12 @@ const FileUpload = () => {
       {/* Uploaded Data Section */}
       <Collapsible open={isUploadedDataOpen} onOpenChange={setIsUploadedDataOpen} className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-1">
             <CollapsibleTrigger className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${isUploadedDataOpen ? '' : '-rotate-90'}`} />
               <h3 className="text-lg font-semibold text-foreground">Uploaded Data</h3>
             </CollapsibleTrigger>
-            <div className="relative">
+            <div className="relative ml-auto mr-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search..."
@@ -608,12 +608,12 @@ const FileUpload = () => {
       {/* Scrape Queue Results Section */}
       <Collapsible open={isQueueOpen} onOpenChange={setIsQueueOpen} className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-1">
             <CollapsibleTrigger className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform ${isQueueOpen ? '' : '-rotate-90'}`} />
               <h3 className="text-lg font-semibold text-foreground">Scrape Queue</h3>
             </CollapsibleTrigger>
-            <div className="relative">
+            <div className="relative ml-auto mr-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search..."
