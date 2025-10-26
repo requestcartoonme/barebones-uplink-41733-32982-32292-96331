@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import FileUploadCard from "@/components/FileUploadCard";
 import FileUploadDataSections from "@/components/FileUploadDataSections";
 import ManualLeadEntry from "@/components/ManualLeadEntry";
@@ -122,6 +123,45 @@ const FileUpload = () => {
       if (response.ok) {
         const responseData = await response.json();
         console.log('Response data:', responseData);
+        
+        // Save file to Supabase storage
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          
+          if (user) {
+            // Upload file to storage
+            const filePath = `${user.id}/${Date.now()}-${selectedFile.name}`;
+            const { error: storageError } = await supabase.storage
+              .from('csv-uploads')
+              .upload(filePath, selectedFile);
+
+            if (storageError) {
+              console.error('Storage upload error:', storageError);
+              toast.error('File saved to webhook but failed to save to storage');
+            } else {
+              // Save metadata to database
+              const rowCount = Array.isArray(responseData) ? responseData.length : null;
+              const { error: dbError } = await supabase
+                .from('uploaded_files')
+                .insert({
+                  user_id: user.id,
+                  file_name: selectedFile.name,
+                  file_path: filePath,
+                  file_size: selectedFile.size,
+                  row_count: rowCount,
+                  status: 'uploaded'
+                });
+
+              if (dbError) {
+                console.error('Database insert error:', dbError);
+              } else {
+                toast.success('File also saved to your uploads');
+              }
+            }
+          }
+        } catch (storageErr) {
+          console.error('Error saving to storage:', storageErr);
+        }
         
         if (Array.isArray(responseData)) {
           const newResponses: WebhookResponse[] = responseData.map(item => ({

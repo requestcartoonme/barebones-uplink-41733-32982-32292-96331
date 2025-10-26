@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Home, Upload, FileText, Settings, ChevronLeft, ChevronRight } from "lucide-react";
+import { Home, Upload, FileText, Settings, ChevronLeft, FolderOpen } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -38,12 +38,12 @@ const AppSidebar = () => {
                 <img 
                   src="/logos/Trooly Logo-02.svg" 
                   alt="Trooly Logo" 
-                  className="h-6 w-auto"
+                  className="h-6 w-auto brightness-0 dark:brightness-100"
                 />
                 <img 
                   src="/logos/Trooly Logo-03.svg" 
                   alt="Trooly Text" 
-                  className="h-5 w-auto mt-0.5"
+                  className="h-5 w-auto mt-0.5 brightness-0 dark:brightness-100"
                 />
               </div>
               <Button
@@ -60,7 +60,7 @@ const AppSidebar = () => {
               <img 
                 src="/logos/Trooly Logo-02.svg" 
                 alt="Trooly Logo" 
-                className="h-7 w-auto"
+                className="h-7 w-auto brightness-0 dark:brightness-100"
               />
             </div>
           )}
@@ -111,6 +111,21 @@ const AppSidebar = () => {
                   >
                     <FileText className={`h-5 w-5 flex-shrink-0 ${!open ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`} />
                     {open && <span className="font-medium">Results</span>}
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+                <SidebarMenuButton asChild className="hover:bg-primary/20 hover:text-primary active:bg-primary/20 active:text-primary transition-colors group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center">
+                  <a
+                    href="/uploaded-files"
+                    className={`flex items-center rounded-md transition-colors w-full h-10
+                      ${open ? "justify-start gap-3 px-3" : "justify-center items-center"}
+                      hover:bg-accent hover:text-accent-foreground
+                    `}
+                  >
+                    <FolderOpen className={`h-5 w-5 flex-shrink-0 ${!open ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`} />
+                    {open && <span className="font-medium">Uploaded Files</span>}
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
