@@ -43,6 +43,25 @@ const FileUpload = () => {
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Validate file type
+      const validTypes = ['text/csv', 'application/vnd.ms-excel', '.csv'];
+      const fileType = file.type;
+      const fileName = file.name.toLowerCase();
+      
+      const isValidFileType = validTypes.includes(fileType) || fileName.endsWith('.csv');
+      
+      if (!isValidFileType) {
+        toast.error("Please select a valid CSV file");
+        return;
+      }
+      
+      // Validate file size (e.g., max 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      if (file.size > maxSize) {
+        toast.error("File size exceeds 10MB limit");
+        return;
+      }
+      
       setSelectedFile(file);
       toast.success(`Selected: ${file.name}`);
     }
@@ -58,6 +77,12 @@ const FileUpload = () => {
       return;
     }
 
+    // Additional validation before upload
+    if (selectedFile.size === 0) {
+      toast.error("Selected file is empty");
+      return;
+    }
+
     setIsUploading(true);
     setUploadProgress(0);
     toast.success(`Uploading ${selectedFile.name}...`);
@@ -66,8 +91,17 @@ const FileUpload = () => {
     
     try {
       const formData = new FormData();
-      formData.append('file', selectedFile);
+      formData.append('file', selectedFile, selectedFile.name);
+      formData.append('filename', selectedFile.name);
+      formData.append('contentType', selectedFile.type || 'text/csv');
+      formData.append('fileSize', selectedFile.size.toString());
       formData.append('timestamp', new Date().toISOString());
+      
+      // Add debugging information
+      console.log('File to upload:', selectedFile);
+      console.log('File size:', selectedFile.size);
+      console.log('File type:', selectedFile.type);
+      console.log('Form data entries:', Array.from(formData.entries()));
       
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => prev >= 90 ? 90 : prev + Math.random() * 10 + 5);
@@ -76,14 +110,18 @@ const FileUpload = () => {
       const response = await fetch(webhookUrl, {
         method: "POST",
         body: formData,
-        headers: { 'ngrok-skip-browser-warning': 'true' }
+        // Remove the ngrok-skip-browser-warning header which might interfere
       });
       
       clearInterval(progressInterval);
       setUploadProgress(100);
       
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
       if (response.ok) {
         const responseData = await response.json();
+        console.log('Response data:', responseData);
         
         if (Array.isArray(responseData)) {
           const newResponses: WebhookResponse[] = responseData.map(item => ({
@@ -96,7 +134,15 @@ const FileUpload = () => {
           setWebhookResponses(prev => [...newResponses, ...prev]);
           toast.success(`File processed! Added ${newResponses.length} entries`);
           setIsUploadedDataOpen(true);
+        } else {
+          console.warn('Response data is not an array:', responseData);
+          toast.success(`File uploaded successfully`);
         }
+      } else {
+        // Handle non-OK responses
+        const errorText = await response.text();
+        console.error('Upload failed with status:', response.status, 'Response:', errorText);
+        toast.error(`Upload failed: ${response.status} - ${errorText}`);
       }
       
       setTimeout(() => {
@@ -109,7 +155,7 @@ const FileUpload = () => {
     } catch (error) {
       console.error("Error:", error);
       setIsUploading(false);
-      toast.error("Failed to upload file");
+      toast.error(`Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
