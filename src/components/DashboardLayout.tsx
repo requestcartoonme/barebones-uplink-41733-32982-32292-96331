@@ -1,5 +1,10 @@
 import { ReactNode } from "react";
-import { Home, Upload, FileText, Settings, ChevronLeft, FolderOpen } from "lucide-react";
+import { Home, Upload, FileText, Settings, ChevronLeft, FolderOpen, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import troolyLogo from "@/assets/trooly-logo.svg";
+import troolyText from "@/assets/trooly-text.svg";
 import {
   SidebarProvider,
   Sidebar,
@@ -19,6 +24,17 @@ interface DashboardLayoutProps {
 
 const AppSidebar = () => {
   const { open, toggleSidebar } = useSidebar();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Error signing out");
+    } else {
+      toast.success("Signed out successfully");
+      navigate("/auth");
+    }
+  };
 
   return (
     <Sidebar
@@ -36,14 +52,14 @@ const AppSidebar = () => {
             <>
               <div className="flex items-center space-x-2">
                 <img 
-                  src="/logos/Trooly Logo-02.svg" 
+                  src={troolyLogo} 
                   alt="Trooly Logo" 
-                  className="h-6 w-auto brightness-0 dark:brightness-100"
+                  className="h-6 w-auto"
                 />
                 <img 
-                  src="/logos/Trooly Logo-03.svg" 
+                  src={troolyText} 
                   alt="Trooly Text" 
-                  className="h-5 w-auto mt-0.5 brightness-0 dark:brightness-100"
+                  className="h-5 w-auto mt-0.5"
                 />
               </div>
               <Button
@@ -58,9 +74,9 @@ const AppSidebar = () => {
           ) : (
             <div className="flex items-center justify-center w-full cursor-pointer" onClick={toggleSidebar}>
               <img 
-                src="/logos/Trooly Logo-02.svg" 
+                src={troolyLogo} 
                 alt="Trooly Logo" 
-                className="h-7 w-auto brightness-0 dark:brightness-100"
+                className="h-7 w-auto"
               />
             </div>
           )}
@@ -148,27 +164,23 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Status section */}
+        {/* Logout section */}
         <div className="mt-auto p-3 border-t border-sidebar-border">
-          <div
-            className={`py-2.5 rounded-lg bg-sidebar-accent/50 ${
-              open ? "px-3" : "flex justify-center"
-            }`}
-          >
-            {open && (
-              <p className="text-xs text-sidebar-foreground/70 mb-1">Status</p>
-            )}
-            <div
-              className={`flex items-center gap-2 ${open ? "" : "justify-center"}`}
+          <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+            <SidebarMenuButton
+              onClick={handleLogout}
+              className="hover:bg-destructive/20 hover:text-destructive transition-colors group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
             >
-              <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
-              {open && (
-                <span className="text-sm font-medium text-sidebar-foreground">
-                  Connected
-                </span>
-              )}
-            </div>
-          </div>
+              <div
+                className={`flex items-center rounded-md transition-colors w-full h-10
+                  ${open ? "justify-start gap-3 px-3" : "justify-center items-center"}
+                `}
+              >
+                <LogOut className={`h-5 w-5 flex-shrink-0 ${!open ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`} />
+                {open && <span className="font-medium">Logout</span>}
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </div>
       </SidebarContent>
     </Sidebar>
