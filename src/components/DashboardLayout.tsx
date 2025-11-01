@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Home, Upload, FileText, Settings, ChevronLeft, FolderOpen, LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import troolyLogo from "@/assets/trooly-logo.svg";
@@ -88,8 +88,8 @@ const AppSidebar = () => {
             <SidebarMenu className="p-2 space-y-1 group-data-[collapsible=icon]:px-0">
               <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
                 <SidebarMenuButton asChild className="bg-sidebar-accent text-sidebar-accent-foreground hover:bg-primary/20 hover:text-primary active:bg-primary/20 active:text-primary transition-colors group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center">
-                  <a
-                    href="/"
+                  <Link
+                    to="/"
                     className={`flex items-center rounded-md transition-colors w-full h-10
                       ${open ? "justify-start gap-3 px-3" : "justify-center items-center"}
                       hover:bg-accent hover:text-accent-foreground
@@ -97,7 +97,7 @@ const AppSidebar = () => {
                   >
                     <Home className={`h-5 w-5 flex-shrink-0 ${!open ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`} />
                     {open && <span className="font-medium">Dashboard</span>}
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
@@ -133,8 +133,8 @@ const AppSidebar = () => {
 
               <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
                 <SidebarMenuButton asChild className="hover:bg-primary/20 hover:text-primary active:bg-primary/20 active:text-primary transition-colors group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center">
-                  <a
-                    href="/uploaded-files"
+                  <Link
+                    to="/uploaded-files"
                     className={`flex items-center rounded-md transition-colors w-full h-10
                       ${open ? "justify-start gap-3 px-3" : "justify-center items-center"}
                       hover:bg-accent hover:text-accent-foreground
@@ -142,7 +142,7 @@ const AppSidebar = () => {
                   >
                     <FolderOpen className={`h-5 w-5 flex-shrink-0 ${!open ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`} />
                     {open && <span className="font-medium">Uploaded Files</span>}
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 

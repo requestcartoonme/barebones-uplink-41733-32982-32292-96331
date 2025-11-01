@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -9,13 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ArrowLeft, Save, Plus, Trash2, Edit2 } from "lucide-react";
 import { toast } from "sonner";
 import Papa from "papaparse";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface CSVData {
   headers: string[];
@@ -35,11 +29,9 @@ const CSVEditor = () => {
   const [editingHeader, setEditingHeader] = useState<number | null>(null);
   const [headerValue, setHeaderValue] = useState("");
 
-  useEffect(() => {
-    loadCSV();
-  }, [fileId]);
-
-  const loadCSV = async () => {
+  const loadCSV = useCallback(async () => {
+    if (!fileId) return;
+    
     try {
       const { data: fileData, error: fileError } = await supabase
         .from("uploaded_files")
@@ -74,7 +66,11 @@ const CSVEditor = () => {
       toast.error("Failed to load CSV: " + error.message);
       setLoading(false);
     }
-  };
+  }, [fileId]);
+
+  useEffect(() => {
+    loadCSV();
+  }, [loadCSV]);
 
   const saveCSV = async () => {
     setSaving(true);
@@ -111,43 +107,54 @@ const CSVEditor = () => {
     }
   };
 
-  const updateCell = (rowIndex: number, colIndex: number, value: string) => {
-    const newRows = [...csvData.rows];
-    newRows[rowIndex][colIndex] = value;
-    setCsvData({ ...csvData, rows: newRows });
-  };
+  const updateCell = useCallback((rowIndex: number, colIndex: number, value: string) => {
+    setCsvData(prev => {
+      const newRows = [...prev.rows];
+      newRows[rowIndex] = [...newRows[rowIndex]];
+      newRows[rowIndex][colIndex] = value;
+      return { ...prev, rows: newRows };
+    });
+  }, []);
 
-  const updateHeader = (colIndex: number, value: string) => {
-    const newHeaders = [...csvData.headers];
-    newHeaders[colIndex] = value;
-    setCsvData({ ...csvData, headers: newHeaders });
-  };
+  const updateHeader = useCallback((colIndex: number, value: string) => {
+    setCsvData(prev => {
+      const newHeaders = [...prev.headers];
+      newHeaders[colIndex] = value;
+      return { ...prev, headers: newHeaders };
+    });
+  }, []);
 
-  const addRow = () => {
-    const newRow = Array(csvData.headers.length).fill("");
-    setCsvData({ ...csvData, rows: [...csvData.rows, newRow] });
+  const addRow = useCallback(() => {
+    setCsvData(prev => ({
+      ...prev,
+      rows: [...prev.rows, Array(prev.headers.length).fill("")]
+    }));
     toast.success("Row added");
-  };
+  }, []);
 
-  const deleteRow = (rowIndex: number) => {
-    const newRows = csvData.rows.filter((_, i) => i !== rowIndex);
-    setCsvData({ ...csvData, rows: newRows });
+  const deleteRow = useCallback((rowIndex: number) => {
+    setCsvData(prev => ({
+      ...prev,
+      rows: prev.rows.filter((_, i) => i !== rowIndex)
+    }));
     toast.success("Row deleted");
-  };
+  }, []);
 
-  const addColumn = () => {
-    const newHeaders = [...csvData.headers, `Column ${csvData.headers.length + 1}`];
-    const newRows = csvData.rows.map(row => [...row, ""]);
-    setCsvData({ headers: newHeaders, rows: newRows });
+  const addColumn = useCallback(() => {
+    setCsvData(prev => ({
+      headers: [...prev.headers, `Column ${prev.headers.length + 1}`],
+      rows: prev.rows.map(row => [...row, ""])
+    }));
     toast.success("Column added");
-  };
+  }, []);
 
-  const deleteColumn = (colIndex: number) => {
-    const newHeaders = csvData.headers.filter((_, i) => i !== colIndex);
-    const newRows = csvData.rows.map(row => row.filter((_, i) => i !== colIndex));
-    setCsvData({ headers: newHeaders, rows: newRows });
+  const deleteColumn = useCallback((colIndex: number) => {
+    setCsvData(prev => ({
+      headers: prev.headers.filter((_, i) => i !== colIndex),
+      rows: prev.rows.map(row => row.filter((_, i) => i !== colIndex))
+    }));
     toast.success("Column deleted");
-  };
+  }, []);
 
   const deleteFile = async () => {
     if (!confirm("Are you sure you want to delete this CSV file?")) return;
@@ -176,8 +183,24 @@ const CSVEditor = () => {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <p className="text-muted-foreground">Loading CSV...</p>
+        <div className="min-h-screen bg-background p-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-10 w-10" />
+                <Skeleton className="h-6 w-64" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </DashboardLayout>
     );
