@@ -4,8 +4,9 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, FileText } from "lucide-react";
+import { Download, Trash2, FileText, Edit } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 
 interface UploadedFile {
@@ -19,6 +20,7 @@ interface UploadedFile {
 }
 
 const UploadedFiles = () => {
+  const navigate = useNavigate();
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -140,6 +142,13 @@ const UploadedFiles = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => navigate(`/csv-editor/${file.id}`)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
                           <Button
                             variant="outline"
                             size="icon"
