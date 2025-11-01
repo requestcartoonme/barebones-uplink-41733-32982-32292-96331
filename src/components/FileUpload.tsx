@@ -78,7 +78,6 @@ const FileUpload = () => {
       return;
     }
 
-    // Additional validation before upload
     if (selectedFile.size === 0) {
       toast.error("Selected file is empty");
       return;
@@ -88,101 +87,57 @@ const FileUpload = () => {
     setUploadProgress(0);
     toast.success(`Uploading ${selectedFile.name}...`);
     
-    const webhookUrl = "https://fun-driven-ape.ngrok-free.app/webhook-test/77738df2-cc89-4e44-9aea-2c0175b37faf";
-    
     try {
-      const formData = new FormData();
-      formData.append('file', selectedFile, selectedFile.name);
-      formData.append('filename', selectedFile.name);
-      formData.append('contentType', selectedFile.type || 'text/csv');
-      formData.append('fileSize', selectedFile.size.toString());
-      formData.append('timestamp', new Date().toISOString());
-      
-      // Add debugging information
-      console.log('File to upload:', selectedFile);
-      console.log('File size:', selectedFile.size);
-      console.log('File type:', selectedFile.type);
-      console.log('Form data entries:', Array.from(formData.entries()));
-      
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => prev >= 90 ? 90 : prev + Math.random() * 10 + 5);
       }, 150);
       
-      const response = await fetch(webhookUrl, {
-        method: "POST",
-        body: formData,
-        // Remove the ngrok-skip-browser-warning header which might interfere
-      });
+      const { data: { user } } = await supabase.auth.getUser();
       
+      if (!user) {
+        toast.error('You must be logged in to upload files');
+        setIsUploading(false);
+        return;
+      }
+
+      // Upload file to Supabase storage
+      const filePath = `${user.id}/${Date.now()}-${selectedFile.name}`;
+      const { error: storageError } = await supabase.storage
+        .from('csv-uploads')
+        .upload(filePath, selectedFile);
+
       clearInterval(progressInterval);
       setUploadProgress(100);
-      
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-      
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log('Response data:', responseData);
-        
-        // Save file to Supabase storage
-        try {
-          const { data: { user } } = await supabase.auth.getUser();
-          
-          if (user) {
-            // Upload file to storage
-            const filePath = `${user.id}/${Date.now()}-${selectedFile.name}`;
-            const { error: storageError } = await supabase.storage
-              .from('csv-uploads')
-              .upload(filePath, selectedFile);
 
-            if (storageError) {
-              console.error('Storage upload error:', storageError);
-              toast.error('File saved to webhook but failed to save to storage');
-            } else {
-              // Save metadata to database
-              const rowCount = Array.isArray(responseData) ? responseData.length : null;
-              const { error: dbError } = await supabase
-                .from('uploaded_files')
-                .insert({
-                  user_id: user.id,
-                  file_name: selectedFile.name,
-                  file_path: filePath,
-                  file_size: selectedFile.size,
-                  row_count: rowCount,
-                  status: 'uploaded'
-                });
+      if (storageError) {
+        console.error('Storage upload error:', storageError);
+        toast.error('Failed to upload file: ' + storageError.message);
+        setIsUploading(false);
+        return;
+      }
 
-              if (dbError) {
-                console.error('Database insert error:', dbError);
-              } else {
-                toast.success('File also saved to your uploads');
-              }
-            }
-          }
-        } catch (storageErr) {
-          console.error('Error saving to storage:', storageErr);
-        }
-        
-        if (Array.isArray(responseData)) {
-          const newResponses: WebhookResponse[] = responseData.map(item => ({
-            companyName: item.Company || item.company || 'N/A',
-            websiteUrl: item['Website Base URL'] || item.websiteUrl || 'N/A',
-            scrappingStatus: item.Status || item.status || 'N/A',
-            timestamp: new Date().toISOString()
-          }));
-          
-          setWebhookResponses(prev => [...newResponses, ...prev]);
-          toast.success(`File processed! Added ${newResponses.length} entries`);
-          setIsUploadedDataOpen(true);
-        } else {
-          console.warn('Response data is not an array:', responseData);
-          toast.success(`File uploaded successfully`);
-        }
+      // Parse CSV to get row count
+      const text = await selectedFile.text();
+      const lines = text.trim().split('\n');
+      const rowCount = lines.length > 1 ? lines.length - 1 : 0; // Subtract header row
+
+      // Save metadata to database
+      const { error: dbError } = await supabase
+        .from('uploaded_files')
+        .insert({
+          user_id: user.id,
+          file_name: selectedFile.name,
+          file_path: filePath,
+          file_size: selectedFile.size,
+          row_count: rowCount,
+          status: 'uploaded'
+        });
+
+      if (dbError) {
+        console.error('Database insert error:', dbError);
+        toast.error('File uploaded but failed to save metadata');
       } else {
-        // Handle non-OK responses
-        const errorText = await response.text();
-        console.error('Upload failed with status:', response.status, 'Response:', errorText);
-        toast.error(`Upload failed: ${response.status} - ${errorText}`);
+        toast.success('File uploaded successfully! View it in Uploaded Files.');
       }
       
       setTimeout(() => {
